@@ -30,10 +30,12 @@ class Delete extends ActionAbstract
 
     public function handle(RequestInterface $request, ParametersInterface $configuration, ContextInterface $context)
     {
+		$tenantId = $request->getHeader('tenantId');
         try {
             $id = $this->groupService->delete(
                 (int) $request->get('group_id'),
-                $request->getPayload()
+                //$request->getPayload(),
+				$tenantId
             );
 
             $message = new Message();

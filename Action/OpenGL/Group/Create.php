@@ -30,10 +30,12 @@ class Create extends ActionAbstract
 
     public function handle(RequestInterface $request, ParametersInterface $configuration, ContextInterface $context)
     {
+		$tenantId = $request->getHeader('tenantId');
         try {
             $id = $this->groupService->create(
                 $request->getPayload(),
-                $context
+                $context,
+				$tenantId
             );
 
             $message = new Message();

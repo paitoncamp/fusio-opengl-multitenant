@@ -55,11 +55,16 @@ class Group
 		$this->repository->setupConnection($this->connector->getConnection('gl-'.$tenantId));
 	}
 
-    public function create(GroupModel $group, ContextInterface $context): int
+    public function create(GroupModel $group, ContextInterface $context, string $tenantId): int
     {
 		$this->assertGroup($group);
-		$this->setupTenantConnection($group->getTenantId());
+		//to standardize the location of tenantId information on Header, we dont use this line below
+		//$this->setupTenantConnection($group->getTenantId());
         
+		if ($tenantId === null) {
+            throw new StatusCode\BadRequestException('No TenantId provided');
+        }
+		$this->setupTenantConnection($tenantId);
 
         $id = $this->repository->insert(
             $group->getId(),
@@ -76,10 +81,17 @@ class Group
         return $id;
     }
 
-    public function update(int $id, GroupModel $group): int
+    public function update(int $id, GroupModel $group, string $tenantId): int
     {
 		$this->assertGroup($group);
-		$this->setupTenantConnection($group->getTenantId());
+		//to standardize the location of tenantId information on Header, we dont use this line below
+		//$this->setupTenantConnection($group->getTenantId());
+        
+		if ($tenantId === null) {
+            throw new StatusCode\BadRequestException('No TenantId provided');
+        }
+		$this->setupTenantConnection($tenantId);
+		
         $row = $this->repository->findById($id);
         if (empty($row)) {
             throw new StatusCode\NotFoundException('Provided group does not exist');
@@ -95,10 +107,17 @@ class Group
         return $id;
     }
 
-    public function delete(int $id, GroupModel $group): int
+    public function delete(int $id, string $tenantId): int
     {
-		$this->assertGroup($group);
-		$this->setupTenantConnection($group->getTenantId());
+		//$this->assertGroup($group);
+		//to standardize the location of tenantId information on Header, we dont use this line below
+		//$this->setupTenantConnection($group->getTenantId());
+        
+        if ($tenantId === null) {
+            throw new StatusCode\BadRequestException('No TenantId provided');
+        }
+		$this->setupTenantConnection($tenantId);
+		
         $row = $this->repository->findById($id);
         if (empty($row)) {
             throw new StatusCode\NotFoundException('Provided group does not exist');
@@ -126,10 +145,7 @@ class Group
 
     private function assertGroup(GroupModel $group)
     {
-		$tenantId = $group->getTenantId();
-        if ($tenantId === null) {
-            throw new StatusCode\BadRequestException('No TenantId provided');
-        }
+		
 		
         $id = $group->getId();
         if ($id === null) {
